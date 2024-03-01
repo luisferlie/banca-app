@@ -102,7 +102,7 @@ function displayMovements(movimientos) {
         <span class="fs-5 text-info me-1">${i + 1} </span><div class="movements__type movements__type--${type} "> ${type}</div>
           <div class="d-flex flex-column ">
               <div class="movements__value">${mov.amount}€</div>
-              <div class="date">${mov.date}</div>
+              <div class="date">${mov.date.slice(0,10)}</div>
           </div>
         </div>
       `
