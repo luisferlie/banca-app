@@ -1,6 +1,7 @@
-import {ingresar,retirar } from './operar/ingresarRetirar.js'
-import enviarMensaje  from './operar/mensajes.js'
+import { ingresar, retirar } from './operar/ingresarRetirar.js'
+import enviarMensaje from './operar/mensajes.js'
 import realizarTransferencia from './operar/transferir.js'
+import solicitarCredito from './operar/solicitarCredito.js'
 
 const btnLogin = document.querySelector('.btn-login')
 const inputUser = document.querySelector('.input-user')
@@ -21,9 +22,9 @@ const tipoEl = document.querySelector('.tipo-usuario')
 const movimientosEl = document.querySelector('.movimientos')
 const saldoEl = document.querySelector('.saldo')
 //OPERAR
-const operarEl=document.querySelector(".operar")
-const ingresarBtn=document.getElementById("ingresarBtn")
-const retirarBtn=document.getElementById("retirarBtn") 
+const operarEl = document.querySelector(".operar")
+const ingresarBtn = document.getElementById("ingresarBtn")
+const retirarBtn = document.getElementById("retirarBtn")
 //TRANSFERENCIAS
 const transferirBtn = document.getElementById('btn-transfer')
 const transferirCuenta = document.getElementById('transferir-cuenta')
@@ -31,8 +32,11 @@ const transferirAmount = document.getElementById('amountTrans')
 console.log(transferirAmount)
 //MENSAJES
 const mensaje = document.querySelector('.mensaje')
+//SOLICITAR CREDITO
+const solicitarCreditoBtn = document.querySelector('.form__btn--loan')
+const montoCreditoEl=document.querySelector('.form__input--loan-amount')
 //CANCELAR CUENTA
-const cancelarBtn=document.querySelector('.cerrar-cuenta')
+const cancelarBtn = document.querySelector('.cerrar-cuenta')
 
 
 async function operar() {
@@ -87,6 +91,14 @@ async function operar() {
       e.preventDefault()
       cancelarCuenta(user, pin, token, e)
     })
+    solicitarCreditoBtn.addEventListener('click', (e) => {
+      e.preventDefault()
+      const monto=montoCreditoEl.value
+      solicitarCredito(monto,user, token, e)
+    })
+      //dado que no hay ningun requisito simplemente se informa de que queda registrada su solicitud y se le enviaun mensaje
+
+
   } catch (error) {
     console.error('Hubo un error:', error)
     // Manejar errores aquí
@@ -102,7 +114,7 @@ function displayMovements(movimientos) {
         <span class="fs-5 text-info me-1">${i + 1} </span><div class="movements__type movements__type--${type} "> ${type}</div>
           <div class="d-flex flex-column ">
               <div class="movements__value">${mov.amount}€</div>
-              <div class="date">${mov.date.slice(0,10)}</div>
+              <div class="date">${mov.date.slice(0, 10)}</div>
           </div>
         </div>
       `
@@ -114,7 +126,7 @@ function transferir(user, token) {
 
   const transferAmount = Number(transferirAmount.value)
   console.log(transferirCuenta)
-  
+
   const transferTo = transferirCuenta.value
 
 
@@ -126,8 +138,8 @@ function transferir(user, token) {
     console.log('Account number is invalid.')
   }
 
-  realizarTransferencia(transferAmount,transferTo, user,token)
-  
+  realizarTransferencia(transferAmount, transferTo, user, token)
+
 
   console.log(
     'Se ha intentado realizar una transacción',
@@ -176,6 +188,4 @@ function cancelarCuenta(user, pin, token, e) {
   }
 }
 
-function solicitarCredito() {}
-function retirarDinero() {}
-function ingresarDinero() {}
+
