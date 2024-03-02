@@ -1,13 +1,13 @@
-export function ingresar(e, user,token) {
+export function ingresar( user,token,e) {
     const ingreso =Number( document.getElementById('ingreso').value)
     console.log(ingreso)
-    const ingresarUrl = `http://localhost:3000/movements?token=${token}`
+    const ingresarUrl = `http://localhost:4000/movements?token=${token}`
     console.log('desde ingresar', e, ingreso, user);
     const movement = {
         amount: ingreso,
         date: new Date().toISOString()
     }
-    console.log('desde ingresar', e, ingreso, user);
+    
 
     const opciones = {
         method: 'POST',
@@ -32,12 +32,11 @@ export function ingresar(e, user,token) {
         .catch(error => {
             console.error('Error:', error);
         });
-
-
+      
 }
-export function retirar(e, user,token) {
+export function retirar( user,token,e) {
     const retirada = document.getElementById('retirada').value
-    const retirarUrl = `http://localhost:3000/movements?token=${token}`
+    const retirarUrl = `http://localhost:4000/movements?token=${token}`
     const ingresoObj = {
         amount: -parseInt(retirada),
         date: new Date().toISOString()

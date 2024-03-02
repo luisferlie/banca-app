@@ -7,7 +7,7 @@ const btnLogin = document.querySelector('.btn-login')
 const inputUser = document.querySelector('.input-user')
 const inputPin = document.querySelector('.input-pin')
 
-btnLogin.addEventListener('click', operar)
+btnLogin.addEventListener('click', login)
 
 //DATOS DEL USUARIO
 const datosUsuarioEl = document.querySelector('.datos-usuario')
@@ -39,9 +39,9 @@ const montoCreditoEl=document.querySelector('.form__input--loan-amount')
 const cancelarBtn = document.querySelector('.cerrar-cuenta')
 
 
-async function operar() {
+
+async function login() {
   operarEl.classList.remove('d-none')
-  let transferAmount = transferirAmount.value
   let user = inputUser.value
   let pin = inputPin.value
   const url = `http://localhost:4000/login?username=${user}&pin=${pin}`
@@ -72,38 +72,61 @@ async function operar() {
     datosUsuarioEl.classList.remove('d-none')
     const movimientos = data.account.movements
     console.log(movimientos)
+
     displayMovements(movimientos)
+
     const amounts = movimientos.map((mov) => mov.amount)
-
     const balance = amounts.reduce((previous, current) => previous + current, 0)
-
     saldoEl.innerHTML = ` ${balance} `
 
     const token = data.token
 
     console.log(user, token)
-
-    transferirBtn.addEventListener('click', (e) => {
-      e.preventDefault()
-      transferir(user, token, e)
-    })
-    cancelarBtn.addEventListener('click', (e) => {
-      e.preventDefault()
-      cancelarCuenta(user, pin, token, e)
-    })
-    solicitarCreditoBtn.addEventListener('click', (e) => {
-      e.preventDefault()
-      const monto=montoCreditoEl.value
-      solicitarCredito(monto,user, token, e)
-    })
-      //dado que no hay ningun requisito simplemente se informa de que queda registrada su solicitud y se le enviaun mensaje
-
+    const usuario={ user : user , token : token , pin : pin }
+    console.log(usuario);
+    localStorage.setItem("usuario", JSON.stringify(usuario))
 
   } catch (error) {
     console.error('Hubo un error:', error)
     // Manejar errores aquí
   }
 }
+
+ingresarBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  let user =JSON.parse( localStorage.getItem('usuario')).user
+  let token=JSON.parse( localStorage.getItem('usuario')).token
+  console.log(user,token)
+
+  ingresar(user, token,e)
+ 
+  
+ 
+})
+retirarBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  let user =JSON.parse( localStorage.getItem('usuario')).user
+  let token=JSON.parse( localStorage.getItem('usuario')).token
+  retirar(user, token, e)
+})
+
+transferirBtn.addEventListener('click', (e) => {
+  let user =JSON.parse( localStorage.getItem('usuario')).user
+  let token=JSON.parse( localStorage.getItem('usuario')).token
+  e.preventDefault()
+  transferir(user, token, e)
+})
+cancelarBtn.addEventListener('click', (e) => {
+  
+  e.preventDefault()
+  cancelarCuenta(user, pin, token, e)
+})
+solicitarCreditoBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  const monto=montoCreditoEl.value
+  solicitarCredito(monto)
+})
+  //dado que no hay ningun requisito simplemente se informa de que queda registrada su solicitud y se le enviaun mensaje
 
 function displayMovements(movimientos) {
   movimientosEl.innerHTML = ''
