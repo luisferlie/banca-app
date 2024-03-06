@@ -22,9 +22,9 @@ const tipoEl = document.querySelector('.tipo-usuario')
 const movimientosEl = document.querySelector('.movimientos')
 const saldoEl = document.querySelector('.saldo')
 //OPERAR
-const operarEl = document.querySelector(".operar")
-const ingresarBtn = document.getElementById("ingresarBtn")
-const retirarBtn = document.getElementById("retirarBtn")
+const operarEl = document.querySelector('.operar')
+const ingresarBtn = document.getElementById('ingresarBtn')
+const retirarBtn = document.getElementById('retirarBtn')
 //TRANSFERENCIAS
 const transferirBtn = document.getElementById('btn-transfer')
 const transferirCuenta = document.getElementById('transferir-cuenta')
@@ -34,11 +34,9 @@ console.log(transferirAmount)
 const mensaje = document.querySelector('.mensaje')
 //SOLICITAR CREDITO
 const solicitarCreditoBtn = document.querySelector('.form__btn--loan')
-const montoCreditoEl=document.querySelector('.form__input--loan-amount')
+const montoCreditoEl = document.querySelector('.form__input--loan-amount')
 //CANCELAR CUENTA
 const cancelarBtn = document.querySelector('.cerrar-cuenta')
-
-
 
 async function login() {
   operarEl.classList.remove('d-none')
@@ -82,10 +80,9 @@ async function login() {
     const token = data.token
 
     console.log(user, token)
-    const usuario={ user : user , token : token , pin : pin }
-    console.log(usuario);
-    localStorage.setItem("usuario", JSON.stringify(usuario))
-
+    const usuario = { user: user, token: token, pin: pin }
+    console.log(usuario)
+    localStorage.setItem('usuario', JSON.stringify(usuario))
   } catch (error) {
     console.error('Hubo un error:', error)
     // Manejar errores aquí
@@ -94,39 +91,53 @@ async function login() {
 
 ingresarBtn.addEventListener('click', (e) => {
   e.preventDefault()
-  let user =JSON.parse( localStorage.getItem('usuario')).user
-  let token=JSON.parse( localStorage.getItem('usuario')).token
-  console.log(user,token)
+  let user = JSON.parse(localStorage.getItem('usuario')).user
+  let token = JSON.parse(localStorage.getItem('usuario')).token
+  console.log(user, token)
 
-  ingresar(user, token,e)
- 
-  
- 
+  ingresar(user, token, e)
+  showMovements()
+  enviarMensaje("ingreso realizada")
+  document.getElementById('ingreso').value =''
+
 })
 retirarBtn.addEventListener('click', (e) => {
   e.preventDefault()
-  let user =JSON.parse( localStorage.getItem('usuario')).user
-  let token=JSON.parse( localStorage.getItem('usuario')).token
+  let user = JSON.parse(localStorage.getItem('usuario')).user
+  let token = JSON.parse(localStorage.getItem('usuario')).token
+  let saldo=document.querySelector('.saldo').value
+  console.log('saldo',saldo)
   retirar(user, token, e)
+  showMovements()
+  enviarMensaje("retirada de fondos realizada")
+  document.getElementById('retirada').value =''
 })
 
 transferirBtn.addEventListener('click', (e) => {
-  let user =JSON.parse( localStorage.getItem('usuario')).user
-  let token=JSON.parse( localStorage.getItem('usuario')).token
+  let user = JSON.parse(localStorage.getItem('usuario')).user
+  let token = JSON.parse(localStorage.getItem('usuario')).token
   e.preventDefault()
   transferir(user, token, e)
+  showMovements()
+  enviarMensaje("transferencia realizada")
+  document.getElementById('amountTrans').value =''
+  document.getElementById('transferir-cuenta').value =''
+
 })
 cancelarBtn.addEventListener('click', (e) => {
-  
   e.preventDefault()
-  cancelarCuenta(user, pin, token, e)
+  let user = JSON.parse(localStorage.getItem('usuario')).user
+  let pin = JSON.parse(localStorage.getItem('usuario')).pin
+  console.log(user, pin)
+
+  cancelarCuenta(user, pin, e)
 })
 solicitarCreditoBtn.addEventListener('click', (e) => {
   e.preventDefault()
-  const monto=montoCreditoEl.value
+  const monto = montoCreditoEl.value
   solicitarCredito(monto)
 })
-  //dado que no hay ningun requisito simplemente se informa de que queda registrada su solicitud y se le enviaun mensaje
+//dado que no hay ningun requisito simplemente se informa de que queda registrada su solicitud y se le enviaun mensaje
 
 function displayMovements(movimientos) {
   movimientosEl.innerHTML = ''
@@ -146,12 +157,10 @@ function displayMovements(movimientos) {
 }
 
 function transferir(user, token) {
-
   const transferAmount = Number(transferirAmount.value)
   console.log(transferirCuenta)
 
   const transferTo = transferirCuenta.value
-
 
   console.log(user, transferAmount, token, transferTo)
 
@@ -162,7 +171,6 @@ function transferir(user, token) {
   }
 
   realizarTransferencia(transferAmount, transferTo, user, token)
-
 
   console.log(
     'Se ha intentado realizar una transacción',
@@ -195,20 +203,59 @@ function validateAccountNumber(accountNumber) {
   return checksum % 10 === 0
 }
 
-
-
-
 function cancelarCuenta(user, pin, token, e) {
   const confirmUser = document.querySelector('.confirm-user')
   const confirmPin = document.querySelector('.confirm-pin')
   const pinIntro = confirmPin.value
   const userIntro = confirmUser.value
-  console.log(user, pin, pinIntro, userIntro)
+  console.log(user, pin, 'pinIntro', pinIntro, userIntro)
   if (userIntro == user && pinIntro == pin) {
-    enviarMensaje('se ha procedido a  cerrar tu cuenta');
+    enviarMensaje('se ha procedido a  cerrar tu cuenta')
     //TODO llamada fetch para eliminar cuenta
     console.log('cuenta cancelada')
   }
 }
 
+async function showMovements() {
+  console.log('mostrando movimientos')
+  let user = inputUser.value
+  let pin = inputPin.value
+  const url = `http://localhost:4000/login?username=${user}&pin=${pin}`
 
+  // Realizar la llamada fetch
+  try {
+    // Realizar la llamada fetch
+    const response = await fetch(url)
+
+    // Verificar si la respuesta es exitosa
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+
+    // Parsear la respuesta como JSON
+    const data = await response.json()
+
+    // Manejar la respuesta
+    console.log('Respuesta del servidor:', data.account)
+    // Puedes realizar cualquier otra operación necesaria con los datos
+   
+    const movimientos = data.account.movements
+    console.log(movimientos)
+
+    displayMovements(movimientos)
+
+    const amounts = movimientos.map((mov) => mov.amount)
+    const balance = amounts.reduce((previous, current) => previous + current, 0)
+    saldoEl.innerHTML = ` ${balance} `
+
+    const token = data.token
+
+    console.log(user, token)
+    const usuario = { user: user, token: token, pin: pin }
+    console.log(usuario)
+    // localStorage.setItem('usuario', JSON.stringify(usuario))
+  } catch (error) {
+    console.error('Hubo un error:', error)
+    // Manejar errores aquí
+  }
+}

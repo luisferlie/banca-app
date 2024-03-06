@@ -1,6 +1,9 @@
+import enviarMensaje from './mensajes.js'
+
 export default function realizarTransferencia(transferAmount,transferTo, user,token) {
-    console.log('restando emisor')
+   
     console.log(transferAmount,transferTo, user,token)
+    const movimientosEl=document.querySelector('.movimientos')
   
     const saldo = document.querySelector('.saldo').textContent
     console.log(saldo, user,transferAmount,transferTo)
@@ -13,18 +16,19 @@ export default function realizarTransferencia(transferAmount,transferTo, user,to
     if (transferAmount > Number(saldo)) {
       
       console.log('saldo insuficiente')
+      enviarMensaje(`tienes saldo insuficiente para transferir ${transferAmount}€`)
       return
     }
   
     enviarObjetoAlServidor(movementToAdd)
     const movAnadido=document.createElement('div')
     
-    html=`
+    const html=`
     <div class="movements__row d-flex justify-content-around ">
           <span class="fs-5 text-info me-1"></span><div class="movements__type movements__type--withdrawal"> Transferencia </div>
             <div class="d-flex flex-column ">
                 <div class="movements__value">${movementToAdd.amount}€</div>
-                <div class="date">${date(new date())  }</div>
+                <div class="date">${new Date().toISOString}</div>
             </div>
           </div>
     `
